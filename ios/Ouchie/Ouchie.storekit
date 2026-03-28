@@ -1,0 +1,27 @@
+{
+  "identifier" : "3A1B2C3D-4E5F-6A7B-8C9D-0E1F2A3B4C5D",
+  "nonConsumableProducts" : [
+    {
+      "displayPrice" : "1.99",
+      "familySharable" : false,
+      "internalID" : "A1B2C3D4-E5F6-A7B8-C9D0-E1F2A3B4C5D6",
+      "localizations" : [
+        {
+          "description" : "Unlock Ouchie permanently.",
+          "displayName" : "Ouchie License",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.ymzuiku.ouchie.premium",
+      "referenceName" : "Unlock Premium Sounds",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false
+  },
+  "version" : {
+    "formatVersion" : "2.0",
+    "schemaVersion" : "1.0"
+  }
+}

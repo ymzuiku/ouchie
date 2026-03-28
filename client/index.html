@@ -112,6 +112,27 @@
     color: var(--text);
     letter-spacing: 0.3px;
   }
+  .settings-action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 4px;
+  }
+  .settings-action-btn {
+    width: 100%;
+    padding: 14px 16px;
+    background: none;
+    border: none;
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .settings-action-btn:active { background: rgba(255,255,255,0.08); }
   .settings-close {
     width: 28px;
     height: 28px;
@@ -461,6 +482,7 @@
     object-fit: contain;
     filter: none;
     border-radius: 22px;
+    animation: float 3s ease-in-out infinite;
   }
 
   .title {
@@ -597,6 +619,13 @@
     </div>
     <div class="settings-section-label" data-i18n="settings_lang_label">Language</div>
     <div class="lang-grid" id="langGrid"></div>
+    <div class="settings-section-label" style="margin-top:20px" data-i18n="settings_legal_label">Legal & Support</div>
+    <div class="settings-action-list">
+      <button class="settings-action-btn" id="settingsRestoreBtn" data-i18n="settings_restore">Restore Purchase</button>
+      <button class="settings-action-btn" id="settingsPrivacyBtn" data-i18n="settings_privacy">Privacy Policy</button>
+      <button class="settings-action-btn" id="settingsTermsBtn" data-i18n="settings_terms">Terms of Use</button>
+      <button class="settings-action-btn" id="settingsSupportBtn" data-i18n="settings_support">Contact Support</button>
+    </div>
   </div>
 </div>
 
@@ -627,7 +656,7 @@
 
 <!-- Onboarding / Paywall Screen -->
 <div id="onboarding">
-  <img src="images/normal.png" alt="ouchie" style="width:160px;height:160px;object-fit:contain;margin-bottom:16px;border-radius:32px;">
+  <img src="images/normal.png" alt="ouchie" style="width:160px;height:160px;object-fit:contain;margin-bottom:16px;border-radius:32px;animation:float 3s ease-in-out infinite;">
   <div class="ob-title">Get Started</div>
   <div class="ob-steps">
     <!-- Step 1: first slap -->
@@ -725,6 +754,11 @@ var TRANSLATIONS = {
     test_sound: '▶ TEST SOUND',
     settings_title: 'Settings',
     settings_lang_label: 'Language',
+    settings_legal_label: 'Legal & Support',
+    settings_restore: 'Restore Purchase',
+    settings_privacy: 'Privacy Policy',
+    settings_terms: 'Terms of Use',
+    settings_support: 'Contact Support',
     mode_mix: 'MIX',
     slap_reaction: '✅ Ouchie, that felt good!',
     mode_goat: 'GOAT'
@@ -746,6 +780,11 @@ var TRANSLATIONS = {
     test_sound: '▶ サウンドテスト',
     settings_title: '設定',
     settings_lang_label: '言語',
+    settings_legal_label: '法律・サポート',
+    settings_restore: '購入を復元',
+    settings_privacy: 'プライバシーポリシー',
+    settings_terms: '利用規約',
+    settings_support: 'サポートに連絡',
     mode_mix: 'MIX',
     slap_reaction: '✅ イタイ、気持ちいい！',
     mode_goat: 'GOAT'
@@ -767,6 +806,11 @@ var TRANSLATIONS = {
     test_sound: '▶ PROBAR SONIDO',
     settings_title: 'Ajustes',
     settings_lang_label: 'Idioma',
+    settings_legal_label: 'Legal y soporte',
+    settings_restore: 'Restaurar compra',
+    settings_privacy: 'Política de privacidad',
+    settings_terms: 'Términos de uso',
+    settings_support: 'Contactar soporte',
     mode_mix: 'MIX',
     slap_reaction: '✅ ¡Ay, qué bueno!',
     mode_goat: 'GOAT'
@@ -788,6 +832,11 @@ var TRANSLATIONS = {
     test_sound: '▶ 测试声音',
     settings_title: '设置',
     settings_lang_label: '语言',
+    settings_legal_label: '法律与支持',
+    settings_restore: '恢复购买',
+    settings_privacy: '隐私政策',
+    settings_terms: '使用条款',
+    settings_support: '联系客服',
     mode_mix: 'MIX',
     slap_reaction: '✅ ouchie，好爽',
     mode_goat: 'GOAT'
@@ -809,6 +858,11 @@ var TRANSLATIONS = {
     test_sound: '▶ 測試聲音',
     settings_title: '設定',
     settings_lang_label: '語言',
+    settings_legal_label: '法律與支援',
+    settings_restore: '恢復購買',
+    settings_privacy: '隱私政策',
+    settings_terms: '使用條款',
+    settings_support: '聯絡客服',
     mode_mix: 'MIX',
     slap_reaction: '✅ ouchie，好爽',
     mode_goat: 'GOAT'
@@ -830,6 +884,11 @@ var TRANSLATIONS = {
     test_sound: '▶ 사운드 테스트',
     settings_title: '설정',
     settings_lang_label: '언어',
+    settings_legal_label: '법률 및 지원',
+    settings_restore: '구매 복원',
+    settings_privacy: '개인정보처리방침',
+    settings_terms: '이용약관',
+    settings_support: '고객센터 문의',
     mode_mix: 'MIX',
     slap_reaction: '✅ 아야, 시원해!',
     mode_goat: 'GOAT'
@@ -851,6 +910,11 @@ var TRANSLATIONS = {
     test_sound: '▶ TESTER LE SON',
     settings_title: 'Paramètres',
     settings_lang_label: 'Langue',
+    settings_legal_label: 'Légal et support',
+    settings_restore: 'Restaurer l\'achat',
+    settings_privacy: 'Politique de confidentialité',
+    settings_terms: 'Conditions d\'utilisation',
+    settings_support: 'Contacter le support',
     mode_mix: 'MIX',
     slap_reaction: '✅ Aïe, trop bien !',
     mode_goat: 'GOAT'
@@ -872,6 +936,11 @@ var TRANSLATIONS = {
     test_sound: '▶ PROVA SUONO',
     settings_title: 'Impostazioni',
     settings_lang_label: 'Lingua',
+    settings_legal_label: 'Legale e supporto',
+    settings_restore: 'Ripristina acquisto',
+    settings_privacy: 'Informativa sulla privacy',
+    settings_terms: 'Termini di utilizzo',
+    settings_support: 'Contatta il supporto',
     mode_mix: 'MIX',
     slap_reaction: '✅ Ahi, che bello!',
     mode_goat: 'GOAT'
@@ -893,6 +962,11 @@ var TRANSLATIONS = {
     test_sound: '▶ TON TESTEN',
     settings_title: 'Einstellungen',
     settings_lang_label: 'Sprache',
+    settings_legal_label: 'Rechtliches & Support',
+    settings_restore: 'Kauf wiederherstellen',
+    settings_privacy: 'Datenschutzrichtlinie',
+    settings_terms: 'Nutzungsbedingungen',
+    settings_support: 'Support kontaktieren',
     mode_mix: 'MIX',
     slap_reaction: '✅ Autsch, das war gut!',
     mode_goat: 'GOAT'
@@ -966,6 +1040,46 @@ applyLang(currentLang);
   panel.addEventListener('click', function(e) {
     if (e.target === panel) closeSettings();
   });
+
+  // Restore Purchase
+  var restoreBtn = document.getElementById('settingsRestoreBtn');
+  restoreBtn.addEventListener('click', function() {
+    restoreBtn.disabled = true;
+    var origText = restoreBtn.textContent;
+    restoreBtn.textContent = 'Restoring\u2026';
+    AppShell.call('iap', 'restore', {}).then(function(r) {
+      restoreBtn.disabled = false;
+      restoreBtn.textContent = origText;
+      if (r && r.ok && r.restored) {
+        closeSettings();
+        if (window._ouchieUnlock) window._ouchieUnlock();
+      } else {
+        var msg = (r && r.error === 'no_purchases')
+          ? 'No previous purchase found.\nMake sure you\u2019re signed in with the same Apple ID.'
+          : ('Restore failed: ' + (r && r.error ? r.error : 'unknown'));
+        alert(msg);
+      }
+    }).catch(function() {
+      restoreBtn.disabled = false;
+      restoreBtn.textContent = origText;
+      alert('Restore failed. Please check your network and try again.');
+    });
+  });
+
+  // Privacy Policy
+  document.getElementById('settingsPrivacyBtn').addEventListener('click', function() {
+    window.open('https://ymzuiku.github.io/ouchie/privacy', '_blank');
+  });
+
+  // Terms of Use (Apple EULA)
+  document.getElementById('settingsTermsBtn').addEventListener('click', function() {
+    window.open('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/', '_blank');
+  });
+
+  // Contact Support
+  document.getElementById('settingsSupportBtn').addEventListener('click', function() {
+    window.location.href = 'mailto:viberemote.com@gmail.com?subject=Ouchie%20Support';
+  });
 })();
 
 // ── Disclaimer ─────────────────────────────────────────
@@ -992,14 +1106,26 @@ function showMainApp() {
     disc.style.opacity = '0';
     setTimeout(function() {
       disc.style.display = 'none';
+      // First check local storage, then verify with StoreKit as fallback
       AppShell.storage.get('ouchie_unlocked').then(function(result) {
         if (result && result.value === '1') {
           document.getElementById('app').style.display = 'flex';
           appVisible = true;
         } else {
-          var ob = document.getElementById('onboarding');
-          ob.style.display = 'flex';
-          startOnboarding();
+          // Not in storage — ask StoreKit if user actually owns it
+          AppShell.call('iap', 'checkUnlock', { productId: IAP_PRODUCT_ID }).then(function(r) {
+            if (r && r.found) {
+              // iap.unlocked event will fire and handle navigation
+            } else {
+              var ob = document.getElementById('onboarding');
+              ob.style.display = 'flex';
+              startOnboarding();
+            }
+          }).catch(function() {
+            var ob = document.getElementById('onboarding');
+            ob.style.display = 'flex';
+            startOnboarding();
+          });
         }
       });
     }, 400);
@@ -1015,6 +1141,22 @@ function showMainApp() {
 // ── Onboarding / Paywall ────────────────────────────────
 var IAP_PRODUCT_ID = 'com.ymzuiku.ouchie.premium';
 var fetchedPrice = null;
+
+// Global unlock handler — must be at top level to catch events fired before startOnboarding()
+AppShell.on('iap.unlocked', function() {
+  AppShell.storage.set('ouchie_unlocked', '1').then(function() {
+    var ob = document.getElementById('onboarding');
+    var app = document.getElementById('app');
+    if (ob && ob.style.display !== 'none') {
+      ob.style.transition = 'opacity 0.35s';
+      ob.style.opacity = '0';
+      setTimeout(function() { ob.style.display = 'none'; app.style.display = 'flex'; appVisible = true; }, 350);
+    } else {
+      app.style.display = 'flex';
+      appVisible = true;
+    }
+  });
+});
 var priceError = null;
 
 // Fetch price immediately on load so it's ready by the time user reaches paywall
@@ -1092,9 +1234,8 @@ function startOnboarding() {
   function doUnlock() {
     AppShell.storage.set('ouchie_unlocked', '1').then(showMainApp);
   }
+  window._ouchieUnlock = doUnlock;
 
-  // Handle purchases that complete without a pending callback (e.g. app relaunch with pending tx)
-  AppShell.on('iap.unlocked', doUnlock);
 
   var errMsg = document.getElementById('obErrMsg');
 

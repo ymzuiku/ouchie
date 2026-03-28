@@ -1,4 +1,4 @@
-.PHONY: gen zip open ios serve
+.PHONY: gen zip open ios serve testflight
 
 BUNDLE_ID := com.ymzuiku.ouchie
 IOS_DIR   := ios
@@ -18,6 +18,36 @@ gen: zip
 
 open: gen
 	open $(IOS_DIR)/Ouchie.xcodeproj
+
+API_KEYS_DIR   := ../vibe-remote-api-keys
+ASC_API_KEY_ID     := ASC_API_KEY_ID_REMOVED
+ASC_API_ISSUER_ID  := ASC_API_ISSUER_ID_REMOVED
+ASC_KEY_FULL_PATH  := $(shell cd $(API_KEYS_DIR) 2>/dev/null && pwd)/connect_AuthKey_ASC_API_KEY_ID_REMOVED.p8
+
+testflight: zip
+	@echo "=== TestFlight Release ==="
+	cd $(IOS_DIR) && xcodegen generate
+	@echo "Archiving..."
+	cd $(IOS_DIR) && xcodebuild clean archive \
+		-project Ouchie.xcodeproj \
+		-scheme Ouchie \
+		-archivePath build/Ouchie.xcarchive \
+		-destination 'generic/platform=iOS' \
+		-allowProvisioningUpdates \
+		-authenticationKeyPath "$(ASC_KEY_FULL_PATH)" \
+		-authenticationKeyID "$(ASC_API_KEY_ID)" \
+		-authenticationKeyIssuerID "$(ASC_API_ISSUER_ID)"
+	@echo "Uploading to App Store Connect..."
+	cd $(IOS_DIR) && xcodebuild -exportArchive \
+		-project Ouchie.xcodeproj \
+		-archivePath build/Ouchie.xcarchive \
+		-exportOptionsPlist ExportOptions.plist \
+		-exportPath build/export \
+		-allowProvisioningUpdates \
+		-authenticationKeyPath "$(ASC_KEY_FULL_PATH)" \
+		-authenticationKeyID "$(ASC_API_KEY_ID)" \
+		-authenticationKeyIssuerID "$(ASC_API_ISSUER_ID)"
+	@echo "=== Done! Check App Store Connect for the new build. ==="
 
 ios: zip
 	cd $(IOS_DIR) && xcodegen generate
