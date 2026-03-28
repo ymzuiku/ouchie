@@ -20,9 +20,8 @@ open: gen
 	open $(IOS_DIR)/Ouchie.xcodeproj
 
 API_KEYS_DIR   := ../vibe-remote-api-keys
-ASC_API_KEY_ID     := ASC_API_KEY_ID_REMOVED
-ASC_API_ISSUER_ID  := ASC_API_ISSUER_ID_REMOVED
-ASC_KEY_FULL_PATH  := $(shell cd $(API_KEYS_DIR) 2>/dev/null && pwd)/connect_AuthKey_ASC_API_KEY_ID_REMOVED.p8
+# ASC_API_KEY_ID, ASC_API_ISSUER_ID, OUCHIE_DEVICE_UDID must be set in environment (e.g. ~/.zshrc)
+ASC_KEY_FULL_PATH  := $(shell cd $(API_KEYS_DIR) 2>/dev/null && pwd)/connect_AuthKey_$(ASC_API_KEY_ID).p8
 
 testflight: zip
 	@echo "=== TestFlight Release ==="
@@ -60,5 +59,5 @@ ios: zip
 		-derivedDataPath $(IOS_DIR)/build \
 		-allowProvisioningUpdates \
 		-quiet
-	xcrun devicectl device install app --device DEVICE_UDID_REMOVED $(APP_PATH)
-	xcrun devicectl device process launch --device DEVICE_UDID_REMOVED $(BUNDLE_ID)
+	xcrun devicectl device install app --device $(OUCHIE_DEVICE_UDID) $(APP_PATH)
+	xcrun devicectl device process launch --device $(OUCHIE_DEVICE_UDID) $(BUNDLE_ID)
