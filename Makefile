@@ -1,6 +1,6 @@
 .PHONY: gen zip open ios serve
 
-BUNDLE_ID := com.ymzuiku.Ouchie
+BUNDLE_ID := com.ymzuiku.ouchie
 IOS_DIR   := ios
 APP_PATH  := $(IOS_DIR)/build/Build/Products/Debug-iphoneos/Ouchie.app
 

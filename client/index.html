@@ -46,8 +46,8 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    border: 1px solid var(--border-bright);
-    background: var(--surface-2);
+    border: none;
+    background: transparent;
     color: var(--text-sub);
     display: flex;
     align-items: center;
@@ -55,9 +55,9 @@
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    transition: background 0.15s, transform 0.12s;
+    transition: transform 0.12s;
   }
-  .settings-btn:active { transform: scale(0.9); background: var(--surface-3); }
+  .settings-btn:active { transform: scale(0.9); }
 
   /* ── Settings Panel ── */
   #settingsPanel {
@@ -454,8 +454,8 @@
   }
 
   .logo {
-    width: 120px;
-    height: 120px;
+    width: 180px;
+    height: 180px;
     margin-bottom: 10px;
     transition: transform 0.1s;
     object-fit: contain;
@@ -627,7 +627,7 @@
 
 <!-- Onboarding / Paywall Screen -->
 <div id="onboarding">
-  <img src="images/normal.png" alt="ouchie" style="width:100px;height:100px;object-fit:contain;margin-bottom:16px;border-radius:22px;">
+  <img src="images/normal.png" alt="ouchie" style="width:160px;height:160px;object-fit:contain;margin-bottom:16px;border-radius:32px;">
   <div class="ob-title">Get Started</div>
   <div class="ob-steps">
     <!-- Step 1: first slap -->
@@ -647,23 +647,20 @@
       </div>
     </div>
     <!-- Step 3: paywall -->
-    <div class="ob-step">
-      <div class="ob-num">3</div>
-      <div class="ob-step-body">
-        <div class="ob-step-title">Activate License</div>
+    <div class="ob-step" style="flex-direction:column;align-items:stretch;gap:10px;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div class="ob-num">3</div>
+        <div class="ob-step-title" style="margin-bottom:0">Activate License</div>
       </div>
-    </div>
-  </div>
-
-  <div class="ob-buy-wrap" id="obBuyWrap">
-    <button class="ob-buy-btn" id="obBuyBtn">Buy a License — $1.99</button>
-    <button class="ob-restore-btn" id="obRestoreBtn">Restore Purchase</button>
-    <div id="obErrMsg" style="font-size:12px;color:#ff453a;text-align:center;min-height:16px;margin-top:4px;"></div>
-    <div class="ob-legal">
-      Payment will be charged to your Apple ID at confirmation of purchase.
-      This is a one-time purchase that unlocks Ouchie permanently.
-      By purchasing you agree to our
-      <a href="https://ymzuiku.github.io/ouchie/privacy" style="color:inherit">Terms &amp; Privacy Policy</a>.
+      <button class="ob-buy-btn" id="obBuyBtn" disabled>Buy a License — …</button>
+      <button class="ob-restore-btn" id="obRestoreBtn">Restore Purchase</button>
+      <div id="obErrMsg" style="font-size:12px;color:#ff453a;text-align:center;min-height:16px;"></div>
+      <div class="ob-legal">
+        Payment will be charged to your Apple ID at confirmation of purchase.
+        This is a one-time purchase that unlocks Ouchie permanently.
+        By purchasing you agree to our
+        <a href="https://ymzuiku.github.io/ouchie/privacy" style="color:inherit">Terms &amp; Privacy Policy</a>.
+      </div>
     </div>
   </div>
 </div>
@@ -675,7 +672,6 @@
 
   <div class="top-card">
     <img class="logo" id="logo" src="images/normal.png" alt="ouchie">
-    <div class="title">OUCHIE</div>
     <div class="subtitle" data-i18n="subtitle">SLAP YOUR PHONE</div>
     <div class="divider"></div>
     <div class="counter-area">
@@ -1017,21 +1013,49 @@ function showMainApp() {
 })();
 
 // ── Onboarding / Paywall ────────────────────────────────
-var IAP_PRODUCT_ID = 'ouchie_unlock';
+var IAP_PRODUCT_ID = 'com.ymzuiku.ouchie.premium';
+var fetchedPrice = null;
+var priceError = null;
+
+// Fetch price immediately on load so it's ready by the time user reaches paywall
+AppShell.call('iap', 'getPrice', { productId: IAP_PRODUCT_ID }).then(function(r) {
+  if (r && r.ok && r.price) {
+    fetchedPrice = r.price;
+    var btn = document.getElementById('obBuyBtn');
+    if (btn) btn.textContent = 'Buy a License \u2014 ' + fetchedPrice;
+  } else {
+    priceError = r ? (r.error || JSON.stringify(r)) : 'no response';
+    var btn = document.getElementById('obBuyBtn');
+    if (btn) {
+      btn.textContent = 'Failed to load price';
+      var em = document.getElementById('obErrMsg');
+      if (em) em.textContent = 'Price error: ' + priceError;
+    }
+  }
+});
 
 function startOnboarding() {
   var trialSlaps = 0;
   var trialDone = false;
-  var buyWrap = document.getElementById('obBuyWrap');
   var buyBtn = document.getElementById('obBuyBtn');
   var restoreBtn = document.getElementById('obRestoreBtn');
+  var trialComplete = false;
 
-  // Fetch localised price
-  AppShell.call('iap', 'getPrice', { productId: IAP_PRODUCT_ID }).then(function(r) {
-    if (r && r.ok && r.price) {
-      buyBtn.textContent = 'Buy a License \u2014 ' + r.price;
+  // Apply price if already fetched, otherwise wait
+  if (fetchedPrice) {
+    buyBtn.textContent = 'Buy a License \u2014 ' + fetchedPrice;
+  }
+
+  function tryEnableBuy() {
+    if (trialComplete) {
+      if (fetchedPrice) {
+        buyBtn.disabled = false;
+      } else {
+        buyBtn.textContent = 'Failed to load price';
+        showErr('Price error: could not load from App Store. Check network or sandbox account.');
+      }
     }
-  });
+  }
 
   var obLogoEl = document.querySelector('#onboarding img');
 
@@ -1058,8 +1082,9 @@ function startOnboarding() {
       s2.textContent = reaction;
       s2.classList.add('visible');
       trialDone = true;
+      trialComplete = true;
       AppShell.off('motion.shake', onTrialShake);
-      setTimeout(function() { buyWrap.classList.add('visible'); }, 500);
+      tryEnableBuy();
     }
   }
   AppShell.on('motion.shake', onTrialShake);
@@ -1068,11 +1093,13 @@ function startOnboarding() {
     AppShell.storage.set('ouchie_unlocked', '1').then(showMainApp);
   }
 
+  // Handle purchases that complete without a pending callback (e.g. app relaunch with pending tx)
+  AppShell.on('iap.unlocked', doUnlock);
+
   var errMsg = document.getElementById('obErrMsg');
 
   function showErr(msg) {
     errMsg.textContent = msg;
-    setTimeout(function() { errMsg.textContent = ''; }, 4000);
   }
 
   function onBuy() {
@@ -1084,13 +1111,13 @@ function startOnboarding() {
         doUnlock();
       } else {
         buyBtn.disabled = false;
-        buyBtn.textContent = 'Buy a License \u2014 $1.99';
+        buyBtn.textContent = 'Buy a License \u2014 ' + fetchedPrice;
         var code = r && r.error;
         if (code !== 'cancelled') showErr(code === 'product_not_found' ? 'Product not set up yet.' : (code || 'Purchase failed. Please try again.'));
       }
     }).catch(function(e) {
       buyBtn.disabled = false;
-      buyBtn.textContent = 'Buy a License \u2014 $1.99';
+      buyBtn.textContent = 'Buy a License \u2014 ' + (fetchedPrice || '$1.99');
       showErr('Purchase failed. Please try again.');
     });
   }
@@ -1100,17 +1127,20 @@ function startOnboarding() {
     errMsg.textContent = '';
     restoreBtn.textContent = 'Restoring\u2026';
     AppShell.call('iap', 'restore', {}).then(function(r) {
-      if (r && r.restored) {
+      restoreBtn.disabled = false;
+      restoreBtn.textContent = 'Restore Purchase';
+      if (r && r.ok && r.restored) {
         doUnlock();
       } else {
-        restoreBtn.disabled = false;
-        restoreBtn.textContent = 'Restore Purchase';
-        showErr('No previous purchase found.');
+        var msg = (r && r.error === 'no_purchases')
+          ? 'No previous purchase found.\nIf you purchased, make sure you\u2019re signed in with the same Apple ID.'
+          : ('Restore failed: ' + (r && r.error ? r.error : 'unknown'));
+        alert(msg);
       }
     }).catch(function() {
       restoreBtn.disabled = false;
       restoreBtn.textContent = 'Restore Purchase';
-      showErr('Restore failed. Please try again.');
+      alert('Restore failed. Please check your network and try again.');
     });
   }
 
@@ -1121,7 +1151,7 @@ function startOnboarding() {
 }
 
 // ── Main App ───────────────────────────────────────────
-var mode = 'pain';
+var mode = 'male';
 var slaps = 0;
 
 // Load persisted slap count
@@ -1286,7 +1316,7 @@ if (typeof DeviceMotionEvent !== 'undefined' && AppShell.platform === 'web') {
   });
 }
 
-statusEl.textContent = AppShell.platform === 'ios' ? 'NATIVE' : 'WEB';
+statusEl.textContent = AppShell.platform === 'ios' ? 'Ouchie - Tap & Yelp' : 'WEB';
 
 function bindTouch(el, fn) {
   el.addEventListener('touchstart', function(e) {
