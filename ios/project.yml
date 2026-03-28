@@ -16,6 +16,15 @@ packages:
   AppShell:
     path: ../../app-shell/ios
 
+schemes:
+  Ouchie:
+    build:
+      targets:
+        Ouchie: all
+    run:
+      config: Debug
+      storeKitConfiguration: Ouchie/Ouchie.storekit
+
 targets:
   Ouchie:
     type: application

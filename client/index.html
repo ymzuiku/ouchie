@@ -49,7 +49,6 @@
     border: 1px solid var(--border-bright);
     background: var(--surface-2);
     color: var(--text-sub);
-    font-size: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -302,6 +301,124 @@
     letter-spacing: 0.3px;
   }
 
+  /* ── Onboarding / Paywall Screen ── */
+  #onboarding {
+    position: fixed;
+    inset: 0;
+    z-index: 190;
+    background: var(--bg);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    padding-top: calc(var(--sat) + 40px);
+    padding-bottom: calc(var(--sab) + 40px);
+  }
+  .ob-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.5px;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+  .ob-steps {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 4px 20px;
+    border: 1px solid var(--border);
+  }
+  .ob-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .ob-step:last-child { border-bottom: none; }
+  .ob-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #2a7ff4;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .ob-step-body { flex: 1; }
+  .ob-step-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .ob-step-sub {
+    font-size: 13px;
+    color: #4cd964;
+    font-weight: 500;
+    display: none;
+  }
+  .ob-step-sub.visible { display: block; }
+  .ob-buy-wrap {
+    margin-top: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    max-width: 320px;
+  }
+  .ob-buy-wrap.visible { display: flex; }
+  .ob-buy-btn {
+    width: 100%;
+    padding: 17px;
+    border-radius: 14px;
+    background: #2a7ff4;
+    color: #fff;
+    border: none;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: transform 0.12s, opacity 0.12s;
+  }
+  .ob-buy-btn:active { transform: scale(0.96); opacity: 0.85; }
+  .ob-buy-btn:disabled { opacity: 0.5; }
+  .ob-restore-btn {
+    background: none;
+    border: none;
+    color: var(--text-sub);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 12px 4px 2px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    text-align: center;
+  }
+  .ob-legal {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.6;
+    margin-top: 14px;
+    max-width: 300px;
+  }
+
   /* ── Main App ── */
   #app {
     display: flex;
@@ -343,7 +460,7 @@
     transition: transform 0.1s;
     object-fit: contain;
     filter: none;
-    border-radius: 0;
+    border-radius: 22px;
   }
 
   .title {
@@ -402,8 +519,9 @@
 
   /* Mode buttons */
   .modes {
-    display: flex;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
     width: calc(100% - 48px);
     max-width: 340px;
     margin-bottom: 12px;
@@ -462,7 +580,12 @@
 <body>
 
 <!-- Settings Button (always visible) -->
-<button class="settings-btn" id="settingsBtn">⚙️</button>
+<button class="settings-btn" id="settingsBtn">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>
+</button>
 
 <!-- Settings Panel -->
 <div id="settingsPanel">
@@ -474,25 +597,6 @@
     </div>
     <div class="settings-section-label" data-i18n="settings_lang_label">Language</div>
     <div class="lang-grid" id="langGrid"></div>
-    <div id="devSection" style="display:none">
-      <div class="settings-section-label">DEV — Server URL</div>
-      <div style="padding: 0 16px 8px">
-        <input id="devServerInput" type="url" placeholder="http://192.168.1.x:8080"
-          style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-bright);
-                 background:var(--surface-2);color:var(--text);font-size:14px;outline:none;
-                 -webkit-appearance:none;box-sizing:border-box;">
-        <button id="devServerSave"
-          style="margin-top:8px;width:100%;padding:10px;border-radius:10px;border:none;
-                 background:var(--accent);color:#fff;font-size:14px;font-weight:700;cursor:pointer;">
-          Save &amp; Reload
-        </button>
-        <button id="devReload"
-          style="margin-top:8px;width:100%;padding:10px;border-radius:10px;border:1px solid var(--border-bright);
-                 background:transparent;color:var(--text-sub);font-size:14px;font-weight:600;cursor:pointer;">
-          Reload
-        </button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -521,6 +625,49 @@
   <div class="disc-footnote" data-i18n="footnote">By continuing you confirm you are 18+ and agree to these terms.</div>
 </div>
 
+<!-- Onboarding / Paywall Screen -->
+<div id="onboarding">
+  <img src="images/normal.png" alt="ouchie" style="width:100px;height:100px;object-fit:contain;margin-bottom:16px;border-radius:22px;">
+  <div class="ob-title">Get Started</div>
+  <div class="ob-steps">
+    <!-- Step 1: first slap -->
+    <div class="ob-step">
+      <div class="ob-num">1</div>
+      <div class="ob-step-body">
+        <div class="ob-step-title">Slap your phone!</div>
+        <div class="ob-step-sub" id="obStep1Sub"></div>
+      </div>
+    </div>
+    <!-- Step 2: second slap -->
+    <div class="ob-step">
+      <div class="ob-num">2</div>
+      <div class="ob-step-body">
+        <div class="ob-step-title">Slap your phone again!</div>
+        <div class="ob-step-sub" id="obStep2Sub"></div>
+      </div>
+    </div>
+    <!-- Step 3: paywall -->
+    <div class="ob-step">
+      <div class="ob-num">3</div>
+      <div class="ob-step-body">
+        <div class="ob-step-title">Activate License</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ob-buy-wrap" id="obBuyWrap">
+    <button class="ob-buy-btn" id="obBuyBtn">Buy a License — $1.99</button>
+    <button class="ob-restore-btn" id="obRestoreBtn">Restore Purchase</button>
+    <div id="obErrMsg" style="font-size:12px;color:#ff453a;text-align:center;min-height:16px;margin-top:4px;"></div>
+    <div class="ob-legal">
+      Payment will be charged to your Apple ID at confirmation of purchase.
+      This is a one-time purchase that unlocks Ouchie permanently.
+      By purchasing you agree to our
+      <a href="https://ymzuiku.github.io/ouchie/" style="color:inherit">Terms &amp; Privacy Policy</a>.
+    </div>
+  </div>
+</div>
+
 <!-- Main App -->
 <div id="app" style="display:none">
 
@@ -538,10 +685,12 @@
   </div>
 
   <div class="modes">
-    <button class="mode-btn active" data-mode="pain" data-i18n="mode_pain">PAIN</button>
+    <button class="mode-btn active" data-mode="male" data-i18n="mode_male">MALE</button>
+    <button class="mode-btn" data-mode="short" data-i18n="mode_short">SHORT</button>
     <button class="mode-btn" data-mode="sexy" data-i18n="mode_sexy">SEXY</button>
     <button class="mode-btn" data-mode="halo" data-i18n="mode_halo">HALO</button>
-    <button class="mode-btn" data-mode="lizard" data-i18n="mode_lizard">LIZARD</button>
+    <button class="mode-btn" data-mode="mix" data-i18n="mode_mix">MIX</button>
+    <button class="mode-btn" data-mode="goat" data-i18n="mode_goat">GOAT</button>
   </div>
 
 <div class="status" id="status">READY</div>
@@ -573,13 +722,16 @@ var TRANSLATIONS = {
     confirm_btn: 'I Understand →',
     footnote: 'By continuing you confirm you are 18+ and agree to these terms.',
     subtitle: 'SLAP YOUR PHONE',
-    mode_pain: 'PAIN',
+    mode_male: 'MALE',
+    mode_short: 'SHORT',
     mode_sexy: 'SEXY',
     mode_halo: 'HALO',
-    mode_lizard: 'LIZARD',
     test_sound: '▶ TEST SOUND',
     settings_title: 'Settings',
-    settings_lang_label: 'Language'
+    settings_lang_label: 'Language',
+    mode_mix: 'MIX',
+    slap_reaction: '✅ Ouchie, that felt good!',
+    mode_goat: 'GOAT'
   },
   ja: {
     disc_badge: 'ご注意',
@@ -591,13 +743,16 @@ var TRANSLATIONS = {
     confirm_btn: '了解して進む →',
     footnote: '続行することで、18歳以上であり利用規約に同意したことになります。',
     subtitle: 'スマホをビンタ',
-    mode_pain: '痛み',
-    mode_sexy: 'セクシー',
+    mode_male: 'MALE',
+    mode_short: 'SHORT',
+    mode_sexy: 'SEXY',
     mode_halo: 'ヘイロー',
-    mode_lizard: 'トカゲ',
     test_sound: '▶ サウンドテスト',
     settings_title: '設定',
-    settings_lang_label: '言語'
+    settings_lang_label: '言語',
+    mode_mix: 'MIX',
+    slap_reaction: '✅ イタイ、気持ちいい！',
+    mode_goat: 'GOAT'
   },
   es: {
     disc_badge: 'AVISO',
@@ -609,13 +764,16 @@ var TRANSLATIONS = {
     confirm_btn: 'Entendido →',
     footnote: 'Al continuar confirmas que tienes 18+ años y aceptas los términos.',
     subtitle: 'GOLPEA TU TELÉFONO',
-    mode_pain: 'DOLOR',
+    mode_male: 'MALE',
+    mode_short: 'SHORT',
     mode_sexy: 'SEXY',
     mode_halo: 'HALO',
-    mode_lizard: 'LAGARTO',
     test_sound: '▶ PROBAR SONIDO',
     settings_title: 'Ajustes',
-    settings_lang_label: 'Idioma'
+    settings_lang_label: 'Idioma',
+    mode_mix: 'MIX',
+    slap_reaction: '✅ ¡Ay, qué bueno!',
+    mode_goat: 'GOAT'
   },
   'zh-CN': {
     disc_badge: '使用须知',
@@ -627,13 +785,16 @@ var TRANSLATIONS = {
     confirm_btn: '我已了解，进入应用 →',
     footnote: '继续使用即表示您已满18岁并同意上述条款。',
     subtitle: '拍打你的手机',
-    mode_pain: '疼痛',
-    mode_sexy: '性感',
+    mode_male: 'MALE',
+    mode_short: 'SHORT',
+    mode_sexy: 'SEXY',
     mode_halo: '圣光',
-    mode_lizard: '蜥蜴',
     test_sound: '▶ 测试声音',
     settings_title: '设置',
-    settings_lang_label: '语言'
+    settings_lang_label: '语言',
+    mode_mix: 'MIX',
+    slap_reaction: '✅ ouchie，好爽',
+    mode_goat: 'GOAT'
   },
   'zh-TW': {
     disc_badge: '使用須知',
@@ -645,13 +806,16 @@ var TRANSLATIONS = {
     confirm_btn: '我已了解，進入應用 →',
     footnote: '繼續使用即表示您已滿18歲並同意上述條款。',
     subtitle: '拍打你的手機',
-    mode_pain: '疼痛',
-    mode_sexy: '性感',
+    mode_male: 'MALE',
+    mode_short: 'SHORT',
+    mode_sexy: 'SEXY',
     mode_halo: '聖光',
-    mode_lizard: '蜥蜴',
     test_sound: '▶ 測試聲音',
     settings_title: '設定',
-    settings_lang_label: '語言'
+    settings_lang_label: '語言',
+    mode_mix: 'MIX',
+    slap_reaction: '✅ ouchie，好爽',
+    mode_goat: 'GOAT'
   },
   ko: {
     disc_badge: '주의사항',
@@ -663,13 +827,16 @@ var TRANSLATIONS = {
     confirm_btn: '알겠습니다 →',
     footnote: '계속 진행하면 만 18세 이상임을 확인하고 이용 약관에 동의하는 것입니다.',
     subtitle: '폰을 때려보세요',
-    mode_pain: '고통',
-    mode_sexy: '섹시',
+    mode_male: 'MALE',
+    mode_short: 'SHORT',
+    mode_sexy: 'SEXY',
     mode_halo: '헤일로',
-    mode_lizard: '도마뱀',
     test_sound: '▶ 사운드 테스트',
     settings_title: '설정',
-    settings_lang_label: '언어'
+    settings_lang_label: '언어',
+    mode_mix: 'MIX',
+    slap_reaction: '✅ 아야, 시원해!',
+    mode_goat: 'GOAT'
   },
   fr: {
     disc_badge: 'AVERTISSEMENT',
@@ -681,13 +848,16 @@ var TRANSLATIONS = {
     confirm_btn: 'J\'ai compris →',
     footnote: 'En continuant, vous confirmez avoir 18 ans ou plus et acceptez les conditions.',
     subtitle: 'CLAQUE TON TÉLÉPHONE',
-    mode_pain: 'DOULEUR',
+    mode_male: 'MALE',
+    mode_short: 'SHORT',
     mode_sexy: 'SEXY',
     mode_halo: 'HALO',
-    mode_lizard: 'LÉZARD',
     test_sound: '▶ TESTER LE SON',
     settings_title: 'Paramètres',
-    settings_lang_label: 'Langue'
+    settings_lang_label: 'Langue',
+    mode_mix: 'MIX',
+    slap_reaction: '✅ Aïe, trop bien !',
+    mode_goat: 'GOAT'
   },
   it: {
     disc_badge: 'AVVISO',
@@ -699,13 +869,16 @@ var TRANSLATIONS = {
     confirm_btn: 'Ho capito →',
     footnote: 'Continuando confermi di avere 18+ anni e di accettare i termini.',
     subtitle: 'SCHIAFFEGGIA IL TUO TELEFONO',
-    mode_pain: 'DOLORE',
+    mode_male: 'MALE',
+    mode_short: 'SHORT',
     mode_sexy: 'SEXY',
     mode_halo: 'ALONE',
-    mode_lizard: 'LUCERTOLA',
     test_sound: '▶ PROVA SUONO',
     settings_title: 'Impostazioni',
-    settings_lang_label: 'Lingua'
+    settings_lang_label: 'Lingua',
+    mode_mix: 'MIX',
+    slap_reaction: '✅ Ahi, che bello!',
+    mode_goat: 'GOAT'
   },
   de: {
     disc_badge: 'HINWEIS',
@@ -717,13 +890,16 @@ var TRANSLATIONS = {
     confirm_btn: 'Ich verstehe →',
     footnote: 'Mit dem Fortfahren bestätigst du, dass du 18+ Jahre alt bist und den Bedingungen zustimmst.',
     subtitle: 'SCHLAGE DEIN HANDY',
-    mode_pain: 'SCHMERZ',
+    mode_male: 'MALE',
+    mode_short: 'SHORT',
     mode_sexy: 'SEXY',
     mode_halo: 'HALO',
-    mode_lizard: 'EIDECHSE',
     test_sound: '▶ TON TESTEN',
     settings_title: 'Einstellungen',
-    settings_lang_label: 'Sprache'
+    settings_lang_label: 'Sprache',
+    mode_mix: 'MIX',
+    slap_reaction: '✅ Autsch, das war gut!',
+    mode_goat: 'GOAT'
   }
 };
 
@@ -796,35 +972,23 @@ applyLang(currentLang);
   });
 })();
 
-// ── Dev Settings ───────────────────────────────────────
-(function() {
-  var section = document.getElementById('devSection');
-  if (!window.isDevMode) return;
-  section.style.display = 'block';
-
-  var input = document.getElementById('devServerInput');
-  var saveBtn = document.getElementById('devServerSave');
-  var reloadBtn = document.getElementById('devReload');
-
-  input.value = localStorage.getItem('appshell_api_base') || '';
-
-  saveBtn.addEventListener('click', function() {
-    var url = input.value.trim().replace(/\/$/, '');
-    AppShell.call('settings', 'setServerURL', { url: url }).then(function() {
-      location.reload();
-    });
-  });
-
-  reloadBtn.addEventListener('click', function() {
-    location.reload();
-  });
-})();
-
 // ── Disclaimer ─────────────────────────────────────────
 var appVisible = false;
+
+function showMainApp() {
+  var ob = document.getElementById('onboarding');
+  var app = document.getElementById('app');
+  ob.style.transition = 'opacity 0.35s';
+  ob.style.opacity = '0';
+  setTimeout(function() {
+    ob.style.display = 'none';
+    app.style.display = 'flex';
+    appVisible = true;
+  }, 350);
+}
+
 (function() {
   var disc = document.getElementById('disclaimer');
-  var app = document.getElementById('app');
   var btn = document.getElementById('discConfirm');
 
   function confirm() {
@@ -832,8 +996,16 @@ var appVisible = false;
     disc.style.opacity = '0';
     setTimeout(function() {
       disc.style.display = 'none';
-      app.style.display = 'flex';
-      appVisible = true;
+      AppShell.storage.get('ouchie_unlocked').then(function(result) {
+        if (result && result.value === '1') {
+          document.getElementById('app').style.display = 'flex';
+          appVisible = true;
+        } else {
+          var ob = document.getElementById('onboarding');
+          ob.style.display = 'flex';
+          startOnboarding();
+        }
+      });
     }, 400);
   }
 
@@ -844,9 +1016,121 @@ var appVisible = false;
   btn.addEventListener('click', confirm);
 })();
 
+// ── Onboarding / Paywall ────────────────────────────────
+var IAP_PRODUCT_ID = 'ouchie_unlock';
+
+function startOnboarding() {
+  var trialSlaps = 0;
+  var trialDone = false;
+  var buyWrap = document.getElementById('obBuyWrap');
+  var buyBtn = document.getElementById('obBuyBtn');
+  var restoreBtn = document.getElementById('obRestoreBtn');
+
+  // Fetch localised price
+  AppShell.call('iap', 'getPrice', { productId: IAP_PRODUCT_ID }).then(function(r) {
+    if (r && r.ok && r.price) {
+      buyBtn.textContent = 'Buy a License \u2014 ' + r.price;
+    }
+  });
+
+  var obLogoEl = document.querySelector('#onboarding img');
+
+  function bounceObLogo() {
+    obLogoEl.style.transform = 'scale(1.4) rotate(-12deg)';
+    setTimeout(function() { obLogoEl.style.transform = ''; }, 150);
+  }
+
+  function onTrialShake() {
+    if (trialDone) return;
+    trialSlaps++;
+    AppShell.haptic && AppShell.haptic.impact('heavy');
+    var src = 'audio/short/' + String(trialSlaps - 1).padStart(2, '0') + '.mp3';
+    var a = new Audio(src); a.play().catch(function() {});
+    bounceObLogo();
+
+    var reaction = (TRANSLATIONS[currentLang] || TRANSLATIONS['en']).slap_reaction;
+    if (trialSlaps === 1) {
+      var s1 = document.getElementById('obStep1Sub');
+      s1.textContent = reaction;
+      s1.classList.add('visible');
+    } else {
+      var s2 = document.getElementById('obStep2Sub');
+      s2.textContent = reaction;
+      s2.classList.add('visible');
+      trialDone = true;
+      AppShell.off('motion.shake', onTrialShake);
+      setTimeout(function() { buyWrap.classList.add('visible'); }, 500);
+    }
+  }
+  AppShell.on('motion.shake', onTrialShake);
+
+  function doUnlock() {
+    AppShell.storage.set('ouchie_unlocked', '1').then(showMainApp);
+  }
+
+  var errMsg = document.getElementById('obErrMsg');
+
+  function showErr(msg) {
+    errMsg.textContent = msg;
+    setTimeout(function() { errMsg.textContent = ''; }, 4000);
+  }
+
+  function onBuy() {
+    buyBtn.disabled = true;
+    errMsg.textContent = '';
+    buyBtn.textContent = 'Processing\u2026';
+    AppShell.call('iap', 'purchase', { productId: IAP_PRODUCT_ID }).then(function(r) {
+      if (r && r.ok) {
+        doUnlock();
+      } else {
+        buyBtn.disabled = false;
+        buyBtn.textContent = 'Buy a License \u2014 $1.99';
+        var code = r && r.error;
+        if (code !== 'cancelled') showErr(code === 'product_not_found' ? 'Product not set up yet.' : (code || 'Purchase failed. Please try again.'));
+      }
+    }).catch(function(e) {
+      buyBtn.disabled = false;
+      buyBtn.textContent = 'Buy a License \u2014 $1.99';
+      showErr('Purchase failed. Please try again.');
+    });
+  }
+
+  function onRestore() {
+    restoreBtn.disabled = true;
+    errMsg.textContent = '';
+    restoreBtn.textContent = 'Restoring\u2026';
+    AppShell.call('iap', 'restore', {}).then(function(r) {
+      if (r && r.restored) {
+        doUnlock();
+      } else {
+        restoreBtn.disabled = false;
+        restoreBtn.textContent = 'Restore Purchase';
+        showErr('No previous purchase found.');
+      }
+    }).catch(function() {
+      restoreBtn.disabled = false;
+      restoreBtn.textContent = 'Restore Purchase';
+      showErr('Restore failed. Please try again.');
+    });
+  }
+
+  buyBtn.addEventListener('touchstart', function(e) { e.preventDefault(); onBuy(); }, { passive: false });
+  buyBtn.addEventListener('click', onBuy);
+  restoreBtn.addEventListener('touchstart', function(e) { e.preventDefault(); onRestore(); }, { passive: false });
+  restoreBtn.addEventListener('click', onRestore);
+}
+
 // ── Main App ───────────────────────────────────────────
 var mode = 'pain';
 var slaps = 0;
+
+// Load persisted slap count
+AppShell.storage.get('ouchie_slaps').then(function(result) {
+  if (result && result.value) {
+    slaps = parseInt(result.value, 10) || 0;
+    counterEl && (counterEl.textContent = slaps);
+  }
+});
 var sexySlaps = 0;
 var sexyDecayTimer = null;
 var cooldown = false;
@@ -857,28 +1141,37 @@ var logoEl = document.getElementById('logo');
 var statusEl = document.getElementById('status');
 
 var modeImages = {
-  pain:   'images/normal.png',
+  male:   'images/normal.png',
   halo:   'images/normal.png',
-  lizard: 'images/normal.png',
-  sexy:   'images/sex.png'
+  goat:   'images/normal.png',
+  short:  'images/sex.png',
+  sexy:   'images/sex.png',
+  mix:    'images/sex.png'
 };
 
 var audioFiles = {
-  pain: [
-    'audio/pain/00_Ow.mp3',
-    'audio/pain/01_Ouch.mp3',
-    'audio/pain/02_Owwie.mp3',
-    'audio/pain/03_Hey_that_hurts.mp3',
-    'audio/pain/04_Ow_stop_it.mp3',
-    'audio/pain/05_What_was_that_for.mp3',
-    'audio/pain/06_Ow_ow_ow.mp3',
-    'audio/pain/07_Hey.mp3',
-    'audio/pain/08_Yowch.mp3',
-    'audio/pain/09_That_stings.mp3'
+  male: [
+    'audio/male/00_Ow.mp3',
+    'audio/male/01_Ouch.mp3',
+    'audio/male/02_Owwie.mp3',
+    'audio/male/03_Hey_that_hurts.mp3',
+    'audio/male/04_Ow_stop_it.mp3',
+    'audio/male/05_What_was_that_for.mp3',
+    'audio/male/06_Ow_ow_ow.mp3',
+    'audio/male/07_Hey.mp3',
+    'audio/male/08_Yowch.mp3',
+    'audio/male/09_That_stings.mp3'
   ],
-  sexy: (function() {
+  short: (function() {
     var files = [];
     for (var i = 0; i < 60; i++) {
+      files.push('audio/short/' + String(i).padStart(2, '0') + '.mp3');
+    }
+    return files;
+  })(),
+  sexy: (function() {
+    var files = [];
+    for (var i = 0; i < 26; i++) {
       files.push('audio/sexy/' + String(i).padStart(2, '0') + '.mp3');
     }
     return files;
@@ -890,7 +1183,20 @@ var audioFiles = {
     }
     return files;
   })(),
-  lizard: ['audio/lizard/00.mp3']
+  mix: (function() {
+    var files = [];
+    for (var i = 0; i < 24; i++) {
+      files.push('audio/mix/' + String(i).padStart(2, '0') + '.mp3');
+    }
+    return files;
+  })(),
+  goat: (function() {
+    var files = [];
+    for (var i = 0; i < 10; i++) {
+      files.push('audio/goat/' + String(i).padStart(2, '0') + '.mp3');
+    }
+    return files;
+  })()
 };
 
 function setMode(m) {
@@ -946,6 +1252,7 @@ function onShake(data) {
 
   slaps++;
   counterEl.textContent = slaps;
+  AppShell.storage.set('ouchie_slaps', String(slaps));
   counterEl.classList.add('active');
   setTimeout(function() { counterEl.classList.remove('active'); }, 300);
 

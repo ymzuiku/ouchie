@@ -4,6 +4,7 @@
 
 # Xcode / iOS build artifacts
 ios/build/
+ios/build-sim/
 ios/Ouchie.xcodeproj/
 ios/SpankIOS.xcodeproj/
 *.xcuserstate

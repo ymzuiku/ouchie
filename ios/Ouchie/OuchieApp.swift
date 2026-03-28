@@ -17,9 +17,10 @@ struct OuchieApp: App {
                 adapters: [
                     MotionAdapter(),
                     HapticAdapter(),
-                    SettingsAdapter()
+                    SettingsAdapter(),
+                    IAPAdapter()
                 ],
-                devMode: true
+                devMode: false
             ))
         }
     }
