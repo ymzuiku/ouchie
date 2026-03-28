@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Ouchie</title>
+<script src="app-shell.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --sat: 0px; --sab: 0px; --sal: 0px; --sar: 0px;
+    --bg: #000000;
+    --surface: #111111;
+    --surface-2: #1a1a1a;
+    --surface-3: #222222;
+    --border: rgba(255,255,255,0.08);
+    --border-bright: rgba(255,255,255,0.15);
+    --text: #ffffff;
+    --text-sub: rgba(255,255,255,0.5);
+    --text-dim: rgba(255,255,255,0.25);
+    --accent: #ff3b30;
+    --accent-glow: rgba(255,59,48,0.4);
+    --white-glow: rgba(255,255,255,0.06);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ── Settings Button ── */
+  .settings-btn {
+    position: fixed;
+    top: calc(var(--sat) + 16px);
+    right: 16px;
+    z-index: 300;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border-bright);
+    background: var(--surface-2);
+    color: var(--text-sub);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background 0.15s, transform 0.12s;
+  }
+  .settings-btn:active { transform: scale(0.9); background: var(--surface-3); }
+
+  /* ── Settings Panel ── */
+  #settingsPanel {
+    position: fixed;
+    inset: 0;
+    z-index: 400;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  #settingsPanel.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .settings-sheet {
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    border: 1px solid var(--border-bright);
+    border-bottom: none;
+    width: 100%;
+    max-width: 420px;
+    padding: 0 0 calc(var(--sab) + 32px);
+    transform: translateY(20px);
+    transition: transform 0.25s cubic-bezier(0.32,0.72,0,1);
+  }
+  #settingsPanel.open .settings-sheet {
+    transform: translateY(0);
+  }
+  .settings-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-bright);
+    margin: 12px auto 0;
+  }
+  .settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .settings-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.3px;
+  }
+  .settings-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: var(--surface-3);
+    color: var(--text-sub);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .settings-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 20px 24px 10px;
+  }
+  .lang-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 0 16px;
+  }
+  .lang-item {
+    padding: 12px 8px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-sub);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: all 0.15s;
+    line-height: 1.3;
+  }
+  .lang-item .lang-name {
+    display: block;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    font-weight: 400;
+  }
+  .lang-item.active {
+    border-color: var(--accent);
+    background: rgba(255,59,48,0.12);
+    color: var(--text);
+  }
+  .lang-item:active { transform: scale(0.95); }
+
+  /* ── Disclaimer Screen ── */
+  #disclaimer {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    padding-top: calc(var(--sat) + 40px);
+    padding-bottom: calc(var(--sab) + 40px);
+  }
+
+  .disc-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 20px rgba(255,59,48,0.4));
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .disc-badge {
+    background: rgba(255,59,48,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(255,59,48,0.3);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+
+  .disc-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .disc-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+    max-width: 320px;
+    width: 100%;
+  }
+
+  .disc-rule {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+  }
+
+  .disc-rule + .disc-rule {
+    border-top: 1px solid var(--border);
+  }
+
+  .disc-rule-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .disc-rule-text {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text-sub);
+    font-weight: 400;
+  }
+
+  .disc-rule-text strong {
+    display: block;
+    color: var(--text);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .disc-confirm {
+    width: 100%;
+    max-width: 320px;
+    padding: 16px;
+    border-radius: 14px;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border-bright);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.12s cubic-bezier(0.34,1.56,0.64,1), background 0.1s, border-color 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .disc-confirm::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  }
+
+  .disc-confirm:active {
+    transform: scale(0.96);
+    background: var(--surface-3);
+    border-color: rgba(255,255,255,0.25);
+  }
+
+  .disc-footnote {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 16px;
+    text-align: center;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── Main App ── */
+  #app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+    height: 100%;
+    padding-top: calc(var(--sat) + 60px);
+    padding-bottom: calc(var(--sab) + 24px);
+  }
+
+  #flash {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.05s;
+    z-index: 100;
+  }
+
+  /* Top card */
+  .top-card {
+    background: transparent;
+    padding: 0 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .logo {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 10px;
+    transition: transform 0.1s;
+    object-fit: contain;
+    filter: none;
+    border-radius: 0;
+  }
+
+  .title {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 10px;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 0;
+  }
+
+  .counter-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .counter {
+    font-size: 120px;
+    font-weight: 100;
+    color: var(--text-dim);
+    line-height: 1;
+    transition: color 0.25s, transform 0.15s;
+    letter-spacing: -6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .counter.active {
+    color: var(--accent);
+    transform: scale(1.1);
+    text-shadow: 0 0 30px var(--accent-glow);
+  }
+
+  .last-sound {
+    font-size: 11px;
+    color: var(--text-dim);
+    min-height: 18px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Mode buttons */
+  .modes {
+    display: flex;
+    gap: 8px;
+    width: calc(100% - 48px);
+    max-width: 340px;
+    margin-bottom: 12px;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .mode-btn {
+    flex: 1;
+    height: 40px;
+    padding: 0 4px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mode-btn.active {
+    background: var(--surface-3);
+    color: var(--text);
+    border: 1px solid var(--border-bright);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  .mode-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* Test button */
+
+  .status {
+    position: fixed;
+    top: calc(var(--sat) + 22px);
+    left: 16px;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<!-- Settings Button (always visible) -->
+<button class="settings-btn" id="settingsBtn">⚙️</button>
+
+<!-- Settings Panel -->
+<div id="settingsPanel">
+  <div class="settings-sheet">
+    <div class="settings-handle"></div>
+    <div class="settings-header">
+      <div class="settings-title" data-i18n="settings_title">Settings</div>
+      <button class="settings-close" id="settingsClose">✕</button>
+    </div>
+    <div class="settings-section-label" data-i18n="settings_lang_label">Language</div>
+    <div class="lang-grid" id="langGrid"></div>
+    <div id="devSection" style="display:none">
+      <div class="settings-section-label">DEV — Server URL</div>
+      <div style="padding: 0 16px 8px">
+        <input id="devServerInput" type="url" placeholder="http://192.168.1.x:8080"
+          style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-bright);
+                 background:var(--surface-2);color:var(--text);font-size:14px;outline:none;
+                 -webkit-appearance:none;box-sizing:border-box;">
+        <button id="devServerSave"
+          style="margin-top:8px;width:100%;padding:10px;border-radius:10px;border:none;
+                 background:var(--accent);color:#fff;font-size:14px;font-weight:700;cursor:pointer;">
+          Save &amp; Reload
+        </button>
+        <button id="devReload"
+          style="margin-top:8px;width:100%;padding:10px;border-radius:10px;border:1px solid var(--border-bright);
+                 background:transparent;color:var(--text-sub);font-size:14px;font-weight:600;cursor:pointer;">
+          Reload
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Disclaimer Screen -->
+<div id="disclaimer">
+  <div class="disc-icon">⚠️</div>
+  <div class="disc-badge" data-i18n="disc_badge">Notice</div>
+  <div class="disc-title" data-i18n="disc_title">Read Before Use</div>
+  <div class="disc-card">
+    <div class="disc-rule">
+      <div class="disc-rule-icon">🚫</div>
+      <div class="disc-rule-text">
+        <strong data-i18n="rule1_title">No Public Use</strong>
+        <span data-i18n="rule1_desc">Use with caution in public spaces and quiet environments.</span>
+      </div>
+    </div>
+    <div class="disc-rule">
+      <div class="disc-rule-icon">👶</div>
+      <div class="disc-rule-text">
+        <strong data-i18n="rule2_title">Not for Children</strong>
+        <span data-i18n="rule2_desc">Content is not suitable for minors. Keep away from children.</span>
+      </div>
+    </div>
+  </div>
+  <button class="disc-confirm" id="discConfirm" data-i18n="confirm_btn">I Understand →</button>
+  <div class="disc-footnote" data-i18n="footnote">By continuing you confirm you are 18+ and agree to these terms.</div>
+</div>
+
+<!-- Main App -->
+<div id="app" style="display:none">
+
+  <div id="flash"></div>
+
+  <div class="top-card">
+    <img class="logo" id="logo" src="images/normal.png" alt="ouchie">
+    <div class="title">OUCHIE</div>
+    <div class="subtitle" data-i18n="subtitle">SLAP YOUR PHONE</div>
+    <div class="divider"></div>
+    <div class="counter-area">
+      <div class="counter" id="counter">0</div>
+      <div class="last-sound" id="lastSound"></div>
+    </div>
+  </div>
+
+  <div class="modes">
+    <button class="mode-btn active" data-mode="pain" data-i18n="mode_pain">PAIN</button>
+    <button class="mode-btn" data-mode="sexy" data-i18n="mode_sexy">SEXY</button>
+    <button class="mode-btn" data-mode="halo" data-i18n="mode_halo">HALO</button>
+    <button class="mode-btn" data-mode="lizard" data-i18n="mode_lizard">LIZARD</button>
+  </div>
+
+<div class="status" id="status">READY</div>
+
+</div>
+
+<script>
+// ── i18n ──────────────────────────────────────────────
+var LANGS = [
+  { code: 'en',    label: 'EN',  name: 'English' },
+  { code: 'ja',    label: '日本語', name: '日本語' },
+  { code: 'es',    label: 'ES',  name: 'Español' },
+  { code: 'zh-CN', label: '简中', name: '简体中文' },
+  { code: 'zh-TW', label: '繁中', name: '繁體中文' },
+  { code: 'ko',    label: '한국어', name: '한국어' },
+  { code: 'fr',    label: 'FR',  name: 'Français' },
+  { code: 'it',    label: 'IT',  name: 'Italiano' },
+  { code: 'de',    label: 'DE',  name: 'Deutsch' }
+];
+
+var TRANSLATIONS = {
+  en: {
+    disc_badge: 'NOTICE',
+    disc_title: 'Read Before Use',
+    rule1_title: 'No Public Use',
+    rule1_desc: 'Use with caution in public spaces and quiet environments.',
+    rule2_title: 'Not for Children',
+    rule2_desc: 'Content is not suitable for minors. Keep away from children.',
+    confirm_btn: 'I Understand →',
+    footnote: 'By continuing you confirm you are 18+ and agree to these terms.',
+    subtitle: 'SLAP YOUR PHONE',
+    mode_pain: 'PAIN',
+    mode_sexy: 'SEXY',
+    mode_halo: 'HALO',
+    mode_lizard: 'LIZARD',
+    test_sound: '▶ TEST SOUND',
+    settings_title: 'Settings',
+    settings_lang_label: 'Language'
+  },
+  ja: {
+    disc_badge: 'ご注意',
+    disc_title: 'ご使用前にお読みください',
+    rule1_title: '公共の場での使用禁止',
+    rule1_desc: '公共の場所や静かな環境での使用はご遠慮ください。',
+    rule2_title: '子どもの前での使用禁止',
+    rule2_desc: 'コンテンツは未成年者に適していません。子どもから遠ざけてください。',
+    confirm_btn: '了解して進む →',
+    footnote: '続行することで、18歳以上であり利用規約に同意したことになります。',
+    subtitle: 'スマホをビンタ',
+    mode_pain: '痛み',
+    mode_sexy: 'セクシー',
+    mode_halo: 'ヘイロー',
+    mode_lizard: 'トカゲ',
+    test_sound: '▶ サウンドテスト',
+    settings_title: '設定',
+    settings_lang_label: '言語'
+  },
+  es: {
+    disc_badge: 'AVISO',
+    disc_title: 'Leer antes de usar',
+    rule1_title: 'No usar en público',
+    rule1_desc: 'Usar con precaución en lugares públicos y entornos tranquilos.',
+    rule2_title: 'No apto para niños',
+    rule2_desc: 'El contenido no es adecuado para menores de edad.',
+    confirm_btn: 'Entendido →',
+    footnote: 'Al continuar confirmas que tienes 18+ años y aceptas los términos.',
+    subtitle: 'GOLPEA TU TELÉFONO',
+    mode_pain: 'DOLOR',
+    mode_sexy: 'SEXY',
+    mode_halo: 'HALO',
+    mode_lizard: 'LAGARTO',
+    test_sound: '▶ PROBAR SONIDO',
+    settings_title: 'Ajustes',
+    settings_lang_label: 'Idioma'
+  },
+  'zh-CN': {
+    disc_badge: '使用须知',
+    disc_title: '使用前请阅读',
+    rule1_title: '请勿在公众场合使用',
+    rule1_desc: '在公共场所、安静环境中请谨慎使用本产品。',
+    rule2_title: '请勿在少儿面前使用',
+    rule2_desc: '本产品内容不适合儿童，请避免在未成年人面前使用。',
+    confirm_btn: '我已了解，进入应用 →',
+    footnote: '继续使用即表示您已满18岁并同意上述条款。',
+    subtitle: '拍打你的手机',
+    mode_pain: '疼痛',
+    mode_sexy: '性感',
+    mode_halo: '圣光',
+    mode_lizard: '蜥蜴',
+    test_sound: '▶ 测试声音',
+    settings_title: '设置',
+    settings_lang_label: '语言'
+  },
+  'zh-TW': {
+    disc_badge: '使用須知',
+    disc_title: '使用前請閱讀',
+    rule1_title: '請勿在公眾場合使用',
+    rule1_desc: '在公共場所、安靜環境中請謹慎使用本產品。',
+    rule2_title: '請勿在兒童面前使用',
+    rule2_desc: '本產品內容不適合兒童，請避免在未成年人面前使用。',
+    confirm_btn: '我已了解，進入應用 →',
+    footnote: '繼續使用即表示您已滿18歲並同意上述條款。',
+    subtitle: '拍打你的手機',
+    mode_pain: '疼痛',
+    mode_sexy: '性感',
+    mode_halo: '聖光',
+    mode_lizard: '蜥蜴',
+    test_sound: '▶ 測試聲音',
+    settings_title: '設定',
+    settings_lang_label: '語言'
+  },
+  ko: {
+    disc_badge: '주의사항',
+    disc_title: '사용 전 읽어주세요',
+    rule1_title: '공공장소 사용 금지',
+    rule1_desc: '공공장소나 조용한 환경에서는 사용을 자제해 주세요.',
+    rule2_title: '어린이 앞 사용 금지',
+    rule2_desc: '콘텐츠는 미성년자에게 적합하지 않습니다. 어린이의 손에 닿지 않게 하세요.',
+    confirm_btn: '알겠습니다 →',
+    footnote: '계속 진행하면 만 18세 이상임을 확인하고 이용 약관에 동의하는 것입니다.',
+    subtitle: '폰을 때려보세요',
+    mode_pain: '고통',
+    mode_sexy: '섹시',
+    mode_halo: '헤일로',
+    mode_lizard: '도마뱀',
+    test_sound: '▶ 사운드 테스트',
+    settings_title: '설정',
+    settings_lang_label: '언어'
+  },
+  fr: {
+    disc_badge: 'AVERTISSEMENT',
+    disc_title: 'Lire avant utilisation',
+    rule1_title: 'Pas d\'usage en public',
+    rule1_desc: 'Utilisez avec précaution dans les lieux publics et environnements calmes.',
+    rule2_title: 'Interdit aux enfants',
+    rule2_desc: 'Le contenu n\'est pas adapté aux mineurs. Gardez-le loin des enfants.',
+    confirm_btn: 'J\'ai compris →',
+    footnote: 'En continuant, vous confirmez avoir 18 ans ou plus et acceptez les conditions.',
+    subtitle: 'CLAQUE TON TÉLÉPHONE',
+    mode_pain: 'DOULEUR',
+    mode_sexy: 'SEXY',
+    mode_halo: 'HALO',
+    mode_lizard: 'LÉZARD',
+    test_sound: '▶ TESTER LE SON',
+    settings_title: 'Paramètres',
+    settings_lang_label: 'Langue'
+  },
+  it: {
+    disc_badge: 'AVVISO',
+    disc_title: 'Leggi prima dell\'uso',
+    rule1_title: 'Vietato in luoghi pubblici',
+    rule1_desc: 'Usa con cautela in luoghi pubblici e ambienti silenziosi.',
+    rule2_title: 'Vietato ai minori',
+    rule2_desc: 'Il contenuto non è adatto ai minori. Tenere lontano dai bambini.',
+    confirm_btn: 'Ho capito →',
+    footnote: 'Continuando confermi di avere 18+ anni e di accettare i termini.',
+    subtitle: 'SCHIAFFEGGIA IL TUO TELEFONO',
+    mode_pain: 'DOLORE',
+    mode_sexy: 'SEXY',
+    mode_halo: 'ALONE',
+    mode_lizard: 'LUCERTOLA',
+    test_sound: '▶ PROVA SUONO',
+    settings_title: 'Impostazioni',
+    settings_lang_label: 'Lingua'
+  },
+  de: {
+    disc_badge: 'HINWEIS',
+    disc_title: 'Vor der Nutzung lesen',
+    rule1_title: 'Keine öffentliche Nutzung',
+    rule1_desc: 'Bitte vorsichtig in öffentlichen Räumen und ruhigen Umgebungen verwenden.',
+    rule2_title: 'Nicht für Kinder',
+    rule2_desc: 'Inhalte sind nicht für Minderjährige geeignet. Von Kindern fernhalten.',
+    confirm_btn: 'Ich verstehe →',
+    footnote: 'Mit dem Fortfahren bestätigst du, dass du 18+ Jahre alt bist und den Bedingungen zustimmst.',
+    subtitle: 'SCHLAGE DEIN HANDY',
+    mode_pain: 'SCHMERZ',
+    mode_sexy: 'SEXY',
+    mode_halo: 'HALO',
+    mode_lizard: 'EIDECHSE',
+    test_sound: '▶ TON TESTEN',
+    settings_title: 'Einstellungen',
+    settings_lang_label: 'Sprache'
+  }
+};
+
+function detectLang() {
+  var saved = localStorage.getItem('ouchie_lang');
+  if (saved && TRANSLATIONS[saved]) return saved;
+  var l = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  if (l.startsWith('zh')) {
+    return (l.includes('tw') || l.includes('hk') || l.includes('mo')) ? 'zh-TW' : 'zh-CN';
+  }
+  if (l.startsWith('ja')) return 'ja';
+  if (l.startsWith('ko')) return 'ko';
+  if (l.startsWith('es')) return 'es';
+  if (l.startsWith('fr')) return 'fr';
+  if (l.startsWith('it')) return 'it';
+  if (l.startsWith('de')) return 'de';
+  return 'en';
+}
+
+var currentLang = detectLang();
+
+function applyLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('ouchie_lang', lang);
+  var t = TRANSLATIONS[lang] || TRANSLATIONS['en'];
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+  // Update lang grid active state
+  document.querySelectorAll('.lang-item').forEach(function(item) {
+    item.classList.toggle('active', item.dataset.lang === lang);
+  });
+}
+
+// Build language grid
+(function() {
+  var grid = document.getElementById('langGrid');
+  LANGS.forEach(function(l) {
+    var btn = document.createElement('button');
+    btn.className = 'lang-item' + (l.code === currentLang ? ' active' : '');
+    btn.dataset.lang = l.code;
+    btn.innerHTML = '<span>' + l.label + '</span><span class="lang-name">' + l.name + '</span>';
+    btn.addEventListener('click', function() { applyLang(l.code); });
+    btn.addEventListener('touchstart', function(e) { e.preventDefault(); applyLang(l.code); }, { passive: false });
+    grid.appendChild(btn);
+  });
+})();
+
+applyLang(currentLang);
+
+// ── Settings Panel ─────────────────────────────────────
+(function() {
+  var panel = document.getElementById('settingsPanel');
+  var openBtn = document.getElementById('settingsBtn');
+  var closeBtn = document.getElementById('settingsClose');
+
+  function openSettings() { panel.classList.add('open'); }
+  function closeSettings() { panel.classList.remove('open'); }
+
+  openBtn.addEventListener('click', openSettings);
+  openBtn.addEventListener('touchstart', function(e) { e.preventDefault(); openSettings(); }, { passive: false });
+
+  closeBtn.addEventListener('click', closeSettings);
+  closeBtn.addEventListener('touchstart', function(e) { e.preventDefault(); closeSettings(); }, { passive: false });
+
+  // Tap backdrop to close
+  panel.addEventListener('click', function(e) {
+    if (e.target === panel) closeSettings();
+  });
+})();
+
+// ── Dev Settings ───────────────────────────────────────
+(function() {
+  var section = document.getElementById('devSection');
+  if (!window.isDevMode) return;
+  section.style.display = 'block';
+
+  var input = document.getElementById('devServerInput');
+  var saveBtn = document.getElementById('devServerSave');
+  var reloadBtn = document.getElementById('devReload');
+
+  input.value = localStorage.getItem('appshell_api_base') || '';
+
+  saveBtn.addEventListener('click', function() {
+    var url = input.value.trim().replace(/\/$/, '');
+    AppShell.call('settings', 'setServerURL', { url: url }).then(function() {
+      location.reload();
+    });
+  });
+
+  reloadBtn.addEventListener('click', function() {
+    location.reload();
+  });
+})();
+
+// ── Disclaimer ─────────────────────────────────────────
+var appVisible = false;
+(function() {
+  var disc = document.getElementById('disclaimer');
+  var app = document.getElementById('app');
+  var btn = document.getElementById('discConfirm');
+
+  function confirm() {
+    disc.style.transition = 'opacity 0.4s';
+    disc.style.opacity = '0';
+    setTimeout(function() {
+      disc.style.display = 'none';
+      app.style.display = 'flex';
+      appVisible = true;
+    }, 400);
+  }
+
+  btn.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    confirm();
+  }, { passive: false });
+  btn.addEventListener('click', confirm);
+})();
+
+// ── Main App ───────────────────────────────────────────
+var mode = 'pain';
+var slaps = 0;
+var sexySlaps = 0;
+var sexyDecayTimer = null;
+var cooldown = false;
+var flashEl = document.getElementById('flash');
+var counterEl = document.getElementById('counter');
+var lastSoundEl = document.getElementById('lastSound');
+var logoEl = document.getElementById('logo');
+var statusEl = document.getElementById('status');
+
+var modeImages = {
+  pain:   'images/normal.png',
+  halo:   'images/normal.png',
+  lizard: 'images/normal.png',
+  sexy:   'images/sex.png'
+};
+
+var audioFiles = {
+  pain: [
+    'audio/pain/00_Ow.mp3',
+    'audio/pain/01_Ouch.mp3',
+    'audio/pain/02_Owwie.mp3',
+    'audio/pain/03_Hey_that_hurts.mp3',
+    'audio/pain/04_Ow_stop_it.mp3',
+    'audio/pain/05_What_was_that_for.mp3',
+    'audio/pain/06_Ow_ow_ow.mp3',
+    'audio/pain/07_Hey.mp3',
+    'audio/pain/08_Yowch.mp3',
+    'audio/pain/09_That_stings.mp3'
+  ],
+  sexy: (function() {
+    var files = [];
+    for (var i = 0; i < 60; i++) {
+      files.push('audio/sexy/' + String(i).padStart(2, '0') + '.mp3');
+    }
+    return files;
+  })(),
+  halo: (function() {
+    var files = [];
+    for (var i = 0; i < 9; i++) {
+      files.push('audio/halo/' + String(i).padStart(2, '0') + '.mp3');
+    }
+    return files;
+  })(),
+  lizard: ['audio/lizard/00.mp3']
+};
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.mode === m);
+  });
+  sexySlaps = 0;
+  logoEl.src = modeImages[m] || modeImages.pain;
+}
+
+function flash(color) {
+  flashEl.style.background = color || 'rgba(255,59,48,0.15)';
+  flashEl.style.opacity = '0.4';
+  setTimeout(function() { flashEl.style.opacity = '0'; }, 80);
+}
+
+function bounceLogo() {
+  logoEl.style.transform = 'scale(1.4) rotate(-12deg)';
+  setTimeout(function() { logoEl.style.transform = ''; }, 150);
+}
+
+var audioUnlocked = false;
+function unlockAudio() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  var buf = new Audio();
+  buf.play().catch(function() {});
+}
+document.addEventListener('touchstart', unlockAudio, { once: true });
+
+function playAudio(src) {
+  var audio = new Audio(src);
+  audio.play().catch(function() {});
+  var name = src.split('/').pop().replace('.mp3', '').replace(/_/g, ' ');
+  lastSoundEl.textContent = name;
+}
+
+function pickAudio() {
+  if (mode === 'sexy') {
+    var idx = Math.min(sexySlaps, audioFiles.sexy.length - 1);
+    return audioFiles.sexy[idx];
+  }
+  var files = audioFiles[mode] || audioFiles.pain;
+  return files[Math.floor(Math.random() * files.length)];
+}
+
+function onShake(data) {
+  if (!appVisible) return;
+  if (cooldown) return;
+  cooldown = true;
+  setTimeout(function() { cooldown = false; }, 750);
+
+  slaps++;
+  counterEl.textContent = slaps;
+  counterEl.classList.add('active');
+  setTimeout(function() { counterEl.classList.remove('active'); }, 300);
+
+  if (mode === 'sexy') {
+    sexySlaps = Math.min(sexySlaps + 1, 59);
+    clearTimeout(sexyDecayTimer);
+    sexyDecayTimer = setTimeout(function() {
+      sexySlaps = Math.max(0, sexySlaps - 1);
+    }, 5000);
+  }
+
+  flash();
+  bounceLogo();
+  AppShell.haptic && AppShell.haptic.impact('heavy');
+  playAudio(pickAudio());
+}
+
+AppShell.on('motion.shake', onShake);
+
+if (typeof DeviceMotionEvent !== 'undefined' && AppShell.platform === 'web') {
+  var lastMotionTime = 0;
+  window.addEventListener('devicemotion', function(e) {
+    var acc = e.accelerationIncludingGravity;
+    if (!acc) return;
+    var amp = Math.sqrt(acc.x*acc.x + acc.y*acc.y + acc.z*acc.z);
+    var now = Date.now();
+    if (amp > 25 && (now - lastMotionTime) > 750) {
+      lastMotionTime = now;
+      onShake({ amplitude: amp });
+    }
+  });
+}
+
+statusEl.textContent = AppShell.platform === 'ios' ? 'NATIVE' : 'WEB';
+
+function bindTouch(el, fn) {
+  el.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    fn();
+  }, { passive: false });
+}
+
+document.querySelectorAll('.mode-btn').forEach(function(btn) {
+  bindTouch(btn, function() { setMode(btn.dataset.mode); });
+});
+
+</script>
+</body>
+</html>

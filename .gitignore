@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+*.DS_Store
+
+# Xcode / iOS build artifacts
+ios/build/
+ios/Ouchie.xcodeproj/
+ios/SpankIOS.xcodeproj/
+*.xcuserstate
+xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+
+# Generated files
+ios/Ouchie/Resources/client.zip
+
+# Node / frontend
+node_modules/
+dist/
+.env
+.env.local
+
+# Misc
+*.log
