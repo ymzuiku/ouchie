@@ -19,8 +19,9 @@ gen: zip
 open: gen
 	open $(IOS_DIR)/Ouchie.xcodeproj
 
-API_KEYS_DIR   := ../vibe-remote-api-keys
-# ASC_API_KEY_ID, ASC_API_ISSUER_ID, OUCHIE_DEVICE_UDID must be set in environment (e.g. ~/.zshrc)
+API_KEYS_DIR       := ../vibe-remote-api-keys
+ASC_API_KEY_ID     := 523PH2J3BK
+ASC_API_ISSUER_ID  := cdc01ff3-bd77-4719-b95d-1bb10b9c14ac
 ASC_KEY_FULL_PATH  := $(shell cd $(API_KEYS_DIR) 2>/dev/null && pwd)/connect_AuthKey_$(ASC_API_KEY_ID).p8
 
 testflight: zip
